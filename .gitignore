@@ -1,0 +1,17 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# VS Code settings
+.vscode/
+
+# Environment files
+.env
+
+# Docker
+docker-compose.override.yml

@@ -28,8 +28,9 @@ class ForgeGame extends FlameGame {
   DateTime _lastCollectionTime = DateTime.now();
 
   // --- UI Components ---
-  late TextComponent _goldText;
-  late TextComponent _levelText;
+  late TextComponent _goldText;       // 보유 골드
+  late TextComponent _levelText;      // 보유 칼 레벨
+  late SpriteComponent _centerSword;  // 칼 
   late TextComponent _statusText;
   late TextBoxComponent _accumulatedGoldText;
   late TextBoxComponent _upgradeCostText;
@@ -38,16 +39,7 @@ class ForgeGame extends FlameGame {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // 1. 리소스 로드
-    // await images.loadAll([
-    //   'assets/ui/blacksmith_wallpaper.png', 
-    //   'assets/ui/user_gold_ui.png', 
-    //   'assets/ui/user_sword_ui.png', 
-    //   'assets/ui/get_gold_btn_ui.png', 
-    //   'assets/ui/upgrade_btn_ui.png',
-    // ]);
-
-    // 1. UI 이미지 리스트
+    // UI 이미지 리스트
     final uiImages = [
       'ui/blacksmith_wallpaper.png', // 경로가 assets/images/ui/ 라면
       'ui/user_gold_ui.png',
@@ -55,25 +47,23 @@ class ForgeGame extends FlameGame {
       'ui/get_gold_btn_ui.png',
       'ui/upgrade_btn_ui.png',
     ];
-    // 2. 검 이미지 리스트 자동 생성 (sword_01.png ~ sword_90.png)
+    // 검 이미지 리스트 자동 생성 (sword_1.png ~ sword_90.png)
     final swordImages = List.generate(90, (index) {
-      // index는 0부터 시작하므로 +1
       int num = index + 1;
-      // 1 -> "01", 10 -> "10" 처럼 두 자리로 맞춤
-      String formattedNum = num.toString().padLeft(2, '0'); 
-      return 'swords/sword_$formattedNum.png'; // 경로 확인 필요!
+      // String formattedNum = num.toString().padLeft(2, '0');   // 1 -> "01", 10 -> "10" 처럼 두 자리로 맞춤
+      return 'swords/sword_$num.png';
     });
-    // 3. 합쳐서 한 번에 로드
+    // 합쳐서 한 번에 로드
     await images.loadAll([...uiImages, ...swordImages]);
 
-    // 2. UI 초기화 (메서드 분리)
+    // UI 초기화 (메서드 분리)
     _initBackground();
     _initHeaderUI();
     _initCenterDisplay(); // 검 이미지 영역
     _initInfoPanel();     // 정보 텍스트 패널
     _initFooterButtons(); // 하단 버튼
 
-    // 3. 서버 로그인
+    // 서버 로그인
     _login();
   }
 
@@ -147,23 +137,31 @@ class ForgeGame extends FlameGame {
   }
 
   void _initCenterDisplay() {
-    // 중앙 검 표시 영역 (임시 박스)
-    add(RectangleComponent(
-      position: Vector2(size.x / 2, size.y * 0.5),
-      size: Vector2(200, 400),
+    // 초기 레벨(1) 검 이미지 가져오기
+    final swordSprite = Sprite(images.fromCache('swords/sword_1.png'));
+    // 화면 중앙에 배치할 크기 설정 (가로 250 기준, 세로 비율 자동 맞춤)
+    double swordWidth = 30.0;
+    double swordHeight = swordWidth * (swordSprite.originalSize.y / swordSprite.originalSize.x);
+  
+    // 검 컴포넌트 생성 및 배치
+    _centerSword = SpriteComponent(
+      sprite: swordSprite,
       anchor: Anchor.center,
-      paint: Paint()..color = Colors.grey.withValues(alpha: 0.3),
-    ));
-
-    // 상태 메시지
+      position: Vector2(size.x / 2, size.y * 0.45), // 화면 정중앙보다 살짝 위(0.45)가 보기 좋음
+      size: Vector2(swordWidth, swordHeight),
+    );
+    add(_centerSword);
+  
+    // 상태 메시지 (검 밑에 표시)
     _statusText = TextComponent(
       text: 'Connecting...',
-      position: Vector2(size.x / 2, size.y * 0.75),
+      position: Vector2(size.x / 2, size.y * 0.75), // 검보다 아래쪽
       anchor: Anchor.center,
       textRenderer: TextPaint(style: const TextStyle(color: Colors.white54, fontSize: 16)),
     );
     add(_statusText);
   }
+
 
   void _initInfoPanel() {
     double infoY = size.y * 0.78;
@@ -287,5 +285,10 @@ class ForgeGame extends FlameGame {
     _goldText.text = '$_gold';
     _levelText.text = '$_level';
     _statusText.text = msg;
+
+    // 검 이미지 교체 로직
+    int imgNum = level > 90 ? 90 : level;
+    final newSprite = Sprite(images.fromCache('swords/sword_$imgNum.png'));
+    _centerSword.sprite = newSprite;
   }
 }

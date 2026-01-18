@@ -36,18 +36,35 @@ class ForgeGame extends FlameGame {
 
   @override
   Future<void> onLoad() async {
-    images.prefix = '';
-    
     await super.onLoad();
 
     // 1. 리소스 로드
-    await images.loadAll([
-      'assets/ui/blacksmith_wallpaper.png', 
-      'assets/ui/user_gold_ui.png', 
-      'assets/ui/user_sword_ui.png', 
-      'assets/ui/get_gold_btn_ui.png', 
-      'assets/ui/upgrade_btn_ui.png'
-    ]);
+    // await images.loadAll([
+    //   'assets/ui/blacksmith_wallpaper.png', 
+    //   'assets/ui/user_gold_ui.png', 
+    //   'assets/ui/user_sword_ui.png', 
+    //   'assets/ui/get_gold_btn_ui.png', 
+    //   'assets/ui/upgrade_btn_ui.png',
+    // ]);
+
+    // 1. UI 이미지 리스트
+    final uiImages = [
+      'ui/blacksmith_wallpaper.png', // 경로가 assets/images/ui/ 라면
+      'ui/user_gold_ui.png',
+      'ui/user_sword_ui.png',
+      'ui/get_gold_btn_ui.png',
+      'ui/upgrade_btn_ui.png',
+    ];
+    // 2. 검 이미지 리스트 자동 생성 (sword_01.png ~ sword_90.png)
+    final swordImages = List.generate(90, (index) {
+      // index는 0부터 시작하므로 +1
+      int num = index + 1;
+      // 1 -> "01", 10 -> "10" 처럼 두 자리로 맞춤
+      String formattedNum = num.toString().padLeft(2, '0'); 
+      return 'swords/sword_$formattedNum.png'; // 경로 확인 필요!
+    });
+    // 3. 합쳐서 한 번에 로드
+    await images.loadAll([...uiImages, ...swordImages]);
 
     // 2. UI 초기화 (메서드 분리)
     _initBackground();
@@ -74,7 +91,7 @@ class ForgeGame extends FlameGame {
   // ==========================================
 
   void _initBackground() {
-    final bgSprite = Sprite(images.fromCache('assets/ui/blacksmith_wallpaper.png'));
+    final bgSprite = Sprite(images.fromCache('ui/blacksmith_wallpaper.png'));
     double scale = size.x / bgSprite.originalSize.x;
     if (bgSprite.originalSize.y * scale < size.y) {
       scale = size.y / bgSprite.originalSize.y;
@@ -90,7 +107,7 @@ class ForgeGame extends FlameGame {
 
   void _initHeaderUI() {
     // 골드 바 (좌측)
-    final goldSprite = Sprite(images.fromCache('assets/ui/user_gold_ui.png'));
+    final goldSprite = Sprite(images.fromCache('ui/user_gold_ui.png'));
     final goldSize = Vector2(160.0, 160.0 * (goldSprite.originalSize.y / goldSprite.originalSize.x));
     
     final goldBar = SpriteComponent(
@@ -109,7 +126,7 @@ class ForgeGame extends FlameGame {
     add(goldBar);
 
     // 레벨 바 (우측)
-    final levelSprite = Sprite(images.fromCache('assets/ui/user_sword_ui.png'));
+    final levelSprite = Sprite(images.fromCache('ui/user_sword_ui.png'));
     final levelSize = Vector2(150.0, 150.0 * (levelSprite.originalSize.y / levelSprite.originalSize.x));
     
     final levelBar = SpriteComponent(
@@ -191,7 +208,7 @@ class ForgeGame extends FlameGame {
 
     // Collect Button
     add(ImageButton(
-      imageName: 'assets/ui/get_gold_btn_ui.png',
+      imageName: 'ui/get_gold_btn_ui.png',
       position: Vector2(size.x * 0.25, btnY),
       size: Vector2(btnWidth, btnHeight),
       label: "",
@@ -200,7 +217,7 @@ class ForgeGame extends FlameGame {
 
     // Upgrade Button
     add(ImageButton(
-      imageName: 'assets/ui/upgrade_btn_ui.png',
+      imageName: 'ui/upgrade_btn_ui.png',
       position: Vector2(size.x * 0.75, btnY),
       size: Vector2(btnWidth, btnHeight),
       label: "",

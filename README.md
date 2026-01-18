@@ -1,13 +1,13 @@
 # 🔨 InfiniteForge (Backend)
 
 > **Server-Authoritative Idle RPG Backend (C# ASP.NET Core)**  
-> *Node.js 개발자가 48시간 만에 구축한 안정적인 게임 서버 아키텍처*
+> *게임 서버 아키텍처*
 
 ## 📖 프로젝트 개요
 **InfiniteForge**는 방치형 RPG(Idle RPG)의 핵심 로직을 처리하는 RESTful API 서버입니다.
 클라이언트의 조작을 전적으로 신뢰하지 않고, **서버가 시간 차이(Time Delta)와 확률을 검증**하여 재화를 지급하고 장비를 강화하는 **Server-Authoritative(서버 권한)** 구조를 구현했습니다.
 
-본 프로젝트는 **에이블게임즈**의 기술 스택인 **C# ASP.NET Core** 환경에 빠르게 적응하고, **안정적인 트랜잭션 처리** 역량을 증명하기 위해 개발되었습니다.
+   본 프로젝트는 **C# ASP.NET Core** 기반의 백엔드 기술 스택을 숙달하고, 대규모 데이터 환경에서도 **안정적인 트랜잭션 처리**를 구현하는 역량을 증명하기 위해 개발되었습니다.
 
 ### 🎯 개발 목표
 - **기술 전환:** Node.js/Express 경험을 바탕으로 **ASP.NET Core & C#** 생태계 완벽 적응

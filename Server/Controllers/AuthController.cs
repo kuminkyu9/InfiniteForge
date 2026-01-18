@@ -31,15 +31,30 @@ namespace Server.Controllers
                     DeviceId = request.DeviceId,
                     Username = $"Player_{Guid.NewGuid().ToString().Substring(0, 8)}", // 랜덤 이름
                     CreatedAt = DateTime.UtcNow,
-                    LastCollectedAt = DateTime.UtcNow
+                    LastCollectedAt = DateTime.UtcNow,
+                    SwordLevel = 1,
+                    Gold = 0,
                 };
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
             }
 
+            // 클라이언트 UI 동기화를 위한 계산
+            long currentProfit = user.SwordLevel * 10; 
+            long nextCost = user.SwordLevel * 1000;
+
             // 3. 유저 정보 반환
-            return Ok(user);
+            // return Ok(user);
+            return Ok(new
+            {
+                id = user.Id,
+                Gold = user.Gold,
+                SwordLevel = user.SwordLevel,
+                ProfitPerSec = currentProfit,   // res.data['profitPerSec'] 
+                UpgradeCost = nextCost, // res.data['upgradeCost'] 
+                LastCollectedAt = user.LastCollectedAt, 
+            });
         }
     }
 

@@ -29,7 +29,8 @@ namespace Server.Controllers
             if (timeDiff < 1) return BadRequest("너무 빨리 요청했습니다.");
 
             // 보상 공식: 시간(초) * (장비레벨 * 10)
-            long reward = (long)(timeDiff * (user.SwordLevel * 10));
+            long seconds = (long)timeDiff; // 1.9초 -> 1초로 내림 처리
+            long reward = seconds * (user.SwordLevel * 10);
 
             // 상태 업데이트
             user.Gold += reward;
@@ -79,16 +80,21 @@ namespace Server.Controllers
 
                 // DB 저장
                 await _context.SaveChangesAsync();
-                
                 // 트랜잭션 커밋 (모든 과정이 성공해야 실제 반영)
                 await transaction.CommitAsync();
+
+                // 강화 후 변경된 스펙 계산
+                long newProfit = user.SwordLevel * 10;
+                long nextCost = user.SwordLevel * 1000;
 
                 return Ok(new 
                 { 
                     Success = isSuccess, 
                     NewLevel = user.SwordLevel, 
                     CurrentGold = user.Gold,
-                    Message = isSuccess ? "강화 성공!" : "강화 실패..."
+                    Message = isSuccess ? "강화 성공!" : "강화 실패...",
+                    NewProfitPerSec = newProfit,
+                    NextUpgradeCost = nextCost
                 });
             }
             catch (Exception)

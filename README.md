@@ -7,7 +7,12 @@
 **InfiniteForge**는 방치형 RPG(Idle RPG)의 핵심 로직을 처리하는 RESTful API 서버입니다.
 클라이언트의 조작을 전적으로 신뢰하지 않고, **서버가 시간 차이(Time Delta)와 확률을 검증**하여 재화를 지급하고 장비를 강화하는 **Server-Authoritative(서버 권한)** 구조를 구현했습니다.
 
-   본 프로젝트는 **C# ASP.NET Core** 기반의 백엔드 기술 스택을 숙달하고, 대규모 데이터 환경에서도 **안정적인 트랜잭션 처리**를 구현하는 역량을 증명하기 위해 개발되었습니다.
+   본 프로젝트는 **C# ASP.NET Core** 기반의 백엔드 기술 스택을 숙달하고, 빠른 적응 능력 역량을 증명하기 위해 개발되었습니다.
+
+<div align="left">
+  <img src="./game_img.png" width="240px" />
+</div>
+
 
 ### 🎯 개발 목표
 - **기술 전환:** Node.js/Express 경험을 바탕으로 **ASP.NET Core & C#** 생태계 완벽 적응
@@ -65,7 +70,7 @@
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/api/auth/login` | DeviceID 기반 비회원 로그인/가입 |
-| `GET` | `/api/user/status` | 유저의 현재 재화 및 장비 상태 조회 |
+<!-- | `GET` | `/api/user/status` | 유저의 현재 재화 및 장비 상태 조회 | -->
 | `POST` | `/api/game/collect` | 방치 보상(골드) 정산 및 수령 |
 | `POST` | `/api/game/upgrade` | 확률 기반 장비 강화 (트랜잭션 적용) |
 
@@ -79,20 +84,16 @@
 
 ### Installation
 
-1. **Repository Clone**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/InfiniteForge.git
-
-2. **Database Setup (Docker)**
+1. **Database Setup (Docker)**
    ```bash
    docker run --name infinite-db -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 -d mysql:8.0
 
-3. **Database Migration**
+2. **Database Migration**
    ```bash
    # 프로젝트 루트에서 실행 (EF Core Tool 필요)
    dotnet ef database update
 
-4. **Run Server**
+3. **Run Server**
    ```bash
    dotnet run
 

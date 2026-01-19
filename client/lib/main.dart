@@ -3,6 +3,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'components/image_button.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 void main() {
   runApp(GameWidget(game: ForgeGame()));
@@ -38,6 +39,15 @@ class ForgeGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
+    // 오디오 로딩
+    await FlameAudio.audioCache.loadAll([
+      'upgrade_fail.mp3', 
+      'upgrade_normal.mp3', 
+      'upgrade_success.mp3', 
+      'get_coin.mp3', 
+    ]);
+
 
     // UI 이미지 리스트
     final uiImages = [
@@ -255,13 +265,22 @@ class ForgeGame extends FlameGame {
     try {
       final res = await _dio.post('$baseUrl/game/upgrade', data: {'userId': _userId});
       bool success = res.data['success'];
+      FlameAudio.play('upgrade_normal.mp3'); 
 
-      if (success) {
+      if (success) {  
         _cost = res.data['nextUpgradeCost'] ?? (_cost * 1.5).toInt();
         _profitPerSec = res.data['newProfitPerSec'] ?? (res.data['newLevel'] * 10);
       }
 
-      updateUI(res.data['currentGold'], res.data['newLevel'], success ? "SUCCESS!" : "Failed...");
+      Future.delayed(Duration(milliseconds: 100), () {
+        if(success) {
+          FlameAudio.play('upgrade_success.mp3'); 
+        }else {
+          FlameAudio.play('upgrade_fail.mp3');
+        }
+      });
+
+      updateUI(res.data['currentGold'], res.data['newLevel'], success ? "강화성공!" : "강화 실패...");
     } catch (e) {
       _statusText.text = "Not enough Gold";
     }
@@ -269,6 +288,9 @@ class ForgeGame extends FlameGame {
 
   Future<void> _collect() async {
     if (_userId == 0) return;
+
+    FlameAudio.play('get_coin.mp3'); 
+    
     try {
       final res = await _dio.post('$baseUrl/game/collect', data: {'userId': _userId});
 

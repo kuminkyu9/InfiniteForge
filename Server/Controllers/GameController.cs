@@ -19,26 +19,37 @@ namespace Server.Controllers
         [HttpPost("collect")]
         public async Task<IActionResult> CollectGold([FromBody] GameRequest request)
         {
-            var user = await _context.Users.FindAsync(request.UserId);
-            if (user == null) return NotFound("유저를 찾을 수 없습니다.");
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var user = await _context.Users.FindAsync(request.UserId);
+                if (user == null) return NotFound("유저를 찾을 수 없습니다.");
 
-            // 시간 차이 계산 (초 단위)
-            var now = DateTime.UtcNow;
-            var timeDiff = (now - user.LastCollectedAt).TotalSeconds;
+                // 시간 차이 계산 (초 단위)
+                var now = DateTime.UtcNow;
+                var timeDiff = (now - user.LastCollectedAt).TotalSeconds;
 
-            if (timeDiff < 1) return BadRequest("너무 빨리 요청했습니다.");
+                if (timeDiff < 1) return BadRequest("너무 빨리 요청했습니다.");
 
-            // 보상 공식: 시간(초) * (장비레벨 * 10)
-            long seconds = (long)timeDiff; // 1.9초 -> 1초로 내림 처리
-            long reward = seconds * (user.SwordLevel * 10);
+                // 보상 공식: 시간(초) * (장비레벨 * 10)
+                long seconds = (long)timeDiff; // 1.9초 -> 1초로 내림 처리
+                long reward = seconds * (user.SwordLevel * 10);
 
-            // 상태 업데이트
-            user.Gold += reward;
-            user.LastCollectedAt = now;
+                // 상태 업데이트
+                user.Gold += reward;
+                user.LastCollectedAt = now;
 
-            await _context.SaveChangesAsync();
-
-            return Ok(new { CurrentGold = user.Gold, Earned = reward });
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok(new { CurrentGold = user.Gold, Earned = reward });
+            }
+            catch (Exception)
+            {
+                // 에러나면 롤백 (골드 수령 취소)
+                await transaction.RollbackAsync();
+                return StatusCode(500, "서버 에러가 발생했습니다.");
+            }
+            
         }
 
         // 2. 장비 강화 (트랜잭션 적용 ★중요)
